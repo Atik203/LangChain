@@ -1,16 +1,61 @@
 import streamlit as st
 from dotenv import load_dotenv
+from langchain_core.prompts import PromptTemplate
 from langchain_openai import ChatOpenAI
 
 load_dotenv()
 
-st.header("Research Tool")
-user_input = st.text_input("Enter your research query here:", key="query")
+model = ChatOpenAI(model_name="gpt-4", temperature=0.7)
 
-if st.button("Submit"):
-    if user_input:
-        llm = ChatOpenAI(model_name="gpt-4o", temperature=0.7)
-        response = llm.invoke(user_input)
-        st.write(response.content)
-    else:
-        st.warning("Please enter a research query before submitting.")
+st.header("Research Tool")
+
+paper_input = st.selectbox(
+    "Select a Research paper name",
+    [
+        "Select .....",
+        "Attention Is All You Need",
+        "BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding",
+        "GPT-3: Language Models are Few-Shot Learners",
+        "RoBERTa: A Robustly Optimized BERT Pretraining Approach",
+        "XLNet: Generalized Autoregressive Pretraining for Language Understanding",
+    ],
+)
+
+style_input = st.selectbox(
+    "Select a Explanation Style",
+    [
+        "Select .....",
+        "Beginner-Friendly",
+        "Technical",
+        "Code-Oriented",
+        "Mathematical",
+    ],
+)
+
+length_input = st.selectbox(
+    "Select a Explanation Length",
+    [
+        "Select .....",
+        "Short (1-2 paragraphs)",
+        "Medium (3-5 paragraphs)",
+        "Long (6+ paragraphs)",
+    ],
+)
+
+
+template = PromptTemplate(
+    input_variables=["paper_input", "style_input", "length_input"],
+    template="Explain the research paper '{paper_input}' in a {style_input} style and {length_input} length.",
+)
+
+prompt = template.invoke(
+    {
+        "paper_input": paper_input,
+        "style_input": style_input,
+        "length_input": length_input,
+    }
+)
+
+if st.button("Generate Explanation"):
+    result = model.invoke(prompt)
+    st.write(result.content)

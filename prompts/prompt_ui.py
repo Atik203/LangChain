@@ -42,19 +42,21 @@ length_input = st.selectbox(
     ],
 )
 
+template = load_prompt("template.json")
+
 if st.button("Generate Explanation"):
     if "Select ....." in [paper_input, style_input, length_input]:
         st.warning("Please make a selection for all fields before generating.")
     else:
-        template = load_prompt("template.json")
-        prompt = template.invoke(
-            {
-                "paper_input": paper_input,
-                "style_input": style_input,
-                "length_input": length_input,
-            }
-        )
+        chain = template | model
         with st.spinner("Generating explanation..."):
-            result = model.invoke(prompt)
+            result = chain.invoke(
+                {
+                    "paper_input": paper_input,
+                    "style_input": style_input,
+                    "length_input": length_input,
+                }
+            )
             st.write(result.content)
+
 

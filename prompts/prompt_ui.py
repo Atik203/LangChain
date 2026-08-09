@@ -1,6 +1,6 @@
 import streamlit as st
 from dotenv import load_dotenv
-from langchain_core.prompts import PromptTemplate
+from langchain_core.prompts import load_prompt
 from langchain_openai import ChatOpenAI
 
 load_dotenv()
@@ -42,20 +42,19 @@ length_input = st.selectbox(
     ],
 )
 
-
-template = PromptTemplate(
-    input_variables=["paper_input", "style_input", "length_input"],
-    template="Explain the research paper '{paper_input}' in a {style_input} style and {length_input} length.",
-)
-
-prompt = template.invoke(
-    {
-        "paper_input": paper_input,
-        "style_input": style_input,
-        "length_input": length_input,
-    }
-)
-
 if st.button("Generate Explanation"):
-    result = model.invoke(prompt)
-    st.write(result.content)
+    if "Select ....." in [paper_input, style_input, length_input]:
+        st.warning("Please make a selection for all fields before generating.")
+    else:
+        template = load_prompt("template.json")
+        prompt = template.invoke(
+            {
+                "paper_input": paper_input,
+                "style_input": style_input,
+                "length_input": length_input,
+            }
+        )
+        with st.spinner("Generating explanation..."):
+            result = model.invoke(prompt)
+            st.write(result.content)
+

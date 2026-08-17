@@ -1,4 +1,4 @@
-.vscode/
 
 # ignore .env inside the folder and its subfolders
-**/.env
+config.bat
+node_modules
